@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pig Clicker</title>
+        <style>
+        b{
+            color:magenta;
+            font-family:monospace;
+        }
+        #clicker-sprite{
+            display:inline;
+            margin:0px;
+            border-width:thin;
+            border-color:pink;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="pig-contain"> <img src="https://image.ibb.co/gTqki6/Good_Pig_Sprite.png" id="clicker-sprite"> </div>
+        <b>pigs: <span id="pig-num">1</span></b>
+        <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+        <script>
+            var button = document.getElementById("clicker-sprite");
+            var display = document.getElementById("pig-num");
+            const container = document.getElementById("pig-contain");
+            button.addEventListener("click", onClick);
+            var pigs = 1;
+            function onClick(){
+                pigs++;
+                display.innerHTML = pigs;
+                const clone = button.cloneNode();
+                container.appendChild(clone);
+                clone.addEventListener("click", onClick);
+            }
+        </script>
+    </body>
+</html>

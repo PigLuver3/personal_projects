@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>pigbounce</title>
+        <style>
+        canvas{
+            border:black 10px solid;
+            margin:5px;
+            width:500px;
+            height:300px;
+        }
+        img{
+            display:none;
+        }
+        </style>
+    </head>
+    <body>
+        <img id="shooter-sprite" src="https://image.ibb.co/gTqki6/Good_Pig_Sprite.png">
+        <img id="projectile-sprite" src="https://image.ibb.co/gTqki6/Good_Pig_Sprite.png">
+        <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
+        <script>
+            const shooterSpeed = 1.5;
+            const projectSpeed = 2;
+            const enemiesSpeed = 3;
+            const canvas = document.getElementById("gamespace");
+            const context = canvas.getContext("2d");
+            const shooterSprite = document.getElementById("shooter-sprite");
+            const projectileSprite = document.getElementById("projectile-sprite");
+            var xPos = 0; var right = true;
+            var yPos = 0; var down = true;
+            
+            function gameLoop() {
+                context.drawImage(shooterSprite, xPos, yPos, shooterSprite.width, shooterSprite.height);
+                if(xPos + 19 >= canvas.width || xPos <= -1) right = !right;
+                if(yPos + 16 >= canvas.height || yPos <= -1) down = !down;
+                if(right)xPos += shooterSpeed; else xPos -= shooterSpeed;
+                if(down)yPos += shooterSpeed; else yPos -= shooterSpeed;
+                window.requestAnimationFrame(gameLoop);
+            }
+            gameLoop();
+        </script>
+    </body>
+</html>
