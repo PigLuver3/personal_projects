@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html> 
     <head>
         <title>PIG IN SPACE</title>
         <style>
@@ -26,7 +26,7 @@
         <img id="pause-screen" src="https://image.ibb.co/gp9pfR/Finished_Pause_Screen.png">
         <img id="game-over" src="https://image.ibb.co/dRnxZm/Finished_Game_Over_Screen.png">
         <img id="background" src="https://preview.ibb.co/jOqS6m/Finished_Space_Background.png">
-        <audio id="bgm" autoplay loop>
+        <audio id="bgm">
              <source src="bgm.wav" type="audio/wav">
              Your browser does not support the audio elements.
         </audio>
@@ -46,14 +46,15 @@
              <source src="losesound.wav" type="audio/wav">
              Your browser does not support the audio elements.
         </audio>
-        <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause.</h2>
+        <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause. R to reset. M to mute/unmute.</h2>
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
         <p>health: <a id="HP">3</a></p>
         <p>points: <a id="score">0</a></p>
+        <h4> Ver 1.0.1 (source code <a href="https://github.com/PigLuver3/personal_projects">here</a>)</h4>
         <script>
-            const canvas = document.getElementById("gamespace");
-            const context = canvas.getContext("2d");
-            var bg = document.getElementById("background");
+            const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
+            const context = canvas.getContext("2d");                //access export console on c9 with alt+T
+            var bg = document.getElementById("background");         
             var score = document.getElementById("score");
             var hitDetect = 3;
             var size = Math.max(canvas.width, canvas.height) + 1;
@@ -62,6 +63,22 @@
             var pauseScreen = document.getElementById("pause-screen");
             var gameOver = document.getElementById("game-over");
             var startScreen = document.getElementById("start-screen");
+            var bgm = document.getElementById("bgm");
+            function reset(){
+                for(var a = shotArray.length() - 1; a >= 0; a--){
+                    shotArray.splice(a, 1);
+                }
+                for(var b = enemyArray.length() - 1; b >= 0; b--){
+                    enemyArray.splice(b, 1);
+                }
+                for(var c = defeatedArray.length() - 1; c >= 0; c--){
+                    defeatedArray.splice(c, 1);
+                }
+                keypress.start = false;
+                keypress.pause = true;
+                score = 0;
+                shooter.health = 3;
+            }
             var keypress = {
                 upM: false,
                 leftM: false,
@@ -72,6 +89,7 @@
                 downS: false,
                 rightS: false,
                 pause: true,
+                mute: false,
                 start: false
             };
             var shootSound = document.getElementById("shoot");
@@ -111,6 +129,12 @@
                         keypress.pause = false;
                     }
                     keypress.start = true;
+                }
+                if(event.keycode === 82){ //r
+                    reset();
+                }
+                if(event.keycode === 77){ //m
+                    keypress.mute = !keypress.mute;
                 }
             });
             document.addEventListener("keyup", function(event) {
@@ -210,22 +234,30 @@
                 shootUp: function() {
                     shotArray.push(new Shot(this.xPos, this.yPos - this.sprite.height, 0));
                     this.shotTimer += this.shotDelay;
-                    shootSound.play();
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
                 },
                 shootLeft: function() {
                     shotArray.push(new Shot(this.xPos - this.sprite.width, this.yPos, 1));
                     this.shotTimer += this.shotDelay;
-                    shootSound.play();
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
                 },
                 shootDown: function() {
                     shotArray.push(new Shot(this.xPos, this.yPos + this.sprite.height, 2));
                     this.shotTimer += this.shotDelay;
-                    shootSound.play();
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
                 },
                 shootRight: function() {
                     shotArray.push(new Shot(this.xPos + this.sprite.width, this.yPos, 3));
                     this.shotTimer += this.shotDelay;
-                    shootSound.play();
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
                 },
                 shoot: function(){
                     if(this.shotTimer === 0){
@@ -298,7 +330,9 @@
                         shooter.health.innerHTML--;
                         shooter.invulnFrames += this.hitDelay;
                         shooter.iFrames = true;
-                        damageSound.play();
+                        if(!keypress.mute){
+                            damageSound.play();
+                        }
                     }
                 };
             }
@@ -330,6 +364,11 @@
                 };
             }
             function gameLoop() {
+                if(!keypress.mute){
+                    bgm.play();
+                } else{
+                    bgm.pause();
+                }
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 window.requestAnimationFrame(gameLoop);
                 context.drawImage(bg, 0, 0, canvas.width, canvas.height);
@@ -367,7 +406,9 @@
                                 defeatedArray.push(new Defeated(enemyArray[j].xPos, enemyArray[j].yPos, enemyArray[j].direction));
                                 enemyArray.splice(j, 1);
                                 shotArray.splice(i, 1);
-                                hitSound.play();
+                                if(!keypress.mute){
+                                    hitSound.play();
+                                }
                                 j = 0;
                                 score.innerHTML++;
                             }
@@ -415,7 +456,10 @@
                 } else{
                     context.drawImage(gameOver, 0, (canvas.height - 0.5 * gameOver.height)/2, 
                     canvas.width, (canvas.width/gameOver.width) * gameOver.height);
-                    loseSound.play();
+                    if(!keypress.mute){
+                        loseSound.play();
+                    }
+                    bgm.pause();
                 }
 
             }
