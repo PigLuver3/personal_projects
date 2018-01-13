@@ -50,7 +50,7 @@
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
         <p>health: <a id="HP">3</a></p>
         <p>points: <a id="score">0</a></p>
-        <h4> Ver 1.0.1 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/shooter/piginspace.html">here</a>)</h4>
+        <h4> Ver 1.2 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/shooter/piginspace.html">here</a>)</h4>
         <script>
             const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
             const context = canvas.getContext("2d");                //access export console on c9 with alt+T
@@ -265,8 +265,8 @@
                 };
             }
             function reset(){
-                score = 0;
-                shooter.health = 3;
+                score.innerHTML = 0;
+                shooter.health.innerHTML = 3;
                 shooter.xPos = canvas.width/2;
                 shooter.yPos = canvas.height/2;
                 shooter.invulnFrames = 0;
@@ -274,12 +274,9 @@
                 keypress.start = false;
                 keypress.pause = true;
                 spawnDelay = 150;
-                while(shotArray.length() > 0){
-                    shotArray.shift();
-                }
-                alert("test");
-                enemyArray.splice(0, enemyArray.length());
-                defeatedArray.splice(0, defeatedArray.length());
+                shotArray.splice(0, shotArray.length);
+                enemyArray.splice(0, enemyArray.length);
+                defeatedArray.splice(0, defeatedArray.length);
             }
             var keypress = {
                 upM: false,
