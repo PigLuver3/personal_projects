@@ -50,7 +50,7 @@
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
         <p>health: <a id="HP">3</a></p>
         <p>points: <a id="score">0</a></p>
-        <h4> Ver 1.0.1 (source code <a href="https://github.com/PigLuver3/personal_projects">here</a>)</h4>
+        <h4> Ver 1.0.1 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/shooter/piginspace.html">here</a>)</h4>
         <script>
             const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
             const context = canvas.getContext("2d");                //access export console on c9 with alt+T
@@ -64,105 +64,6 @@
             var gameOver = document.getElementById("game-over");
             var startScreen = document.getElementById("start-screen");
             var bgm = document.getElementById("bgm");
-            function reset(){
-                for(var a = shotArray.length() - 1; a >= 0; a--){
-                    shotArray.splice(a, 1);
-                }
-                for(var b = enemyArray.length() - 1; b >= 0; b--){
-                    enemyArray.splice(b, 1);
-                }
-                for(var c = defeatedArray.length() - 1; c >= 0; c--){
-                    defeatedArray.splice(c, 1);
-                }
-                keypress.start = false;
-                keypress.pause = true;
-                score = 0;
-                shooter.health = 3;
-            }
-            var keypress = {
-                upM: false,
-                leftM: false,
-                downM: false,
-                rightM: false,
-                upS: false,
-                leftS: false,
-                downS: false,
-                rightS: false,
-                pause: true,
-                mute: false,
-                start: false
-            };
-            var shootSound = document.getElementById("shoot");
-            var hitSound = document.getElementById("hit");
-            var damageSound = document.getElementById("damage");
-            var loseSound = document.getElementById("lose");
-            document.addEventListener("keydown", function(event) {
-                if(event.keyCode === 87){ //w
-                    keypress.upM = true;
-                }
-                if(event.keyCode === 65){ //a
-                    keypress.leftM = true;
-                }
-                if(event.keyCode === 83){ //s
-                    keypress.downM = true;
-                }
-                if(event.keyCode === 68){ //d
-                    keypress.rightM = true;
-                }
-                if(event.keyCode === 38){ //up arrow
-                    keypress.upS = true;
-                }
-                if(event.keyCode === 37){ //left arrow
-                    keypress.leftS = true;
-                }
-                if(event.keyCode === 40){ //down arrow
-                    keypress.downS = true;
-                }
-                if(event.keyCode === 39){ //right arrow
-                    keypress.rightS = true;
-                }
-                if(event.keyCode === 80){ //p
-                    keypress.pause = !keypress.pause;
-                }
-                if(event.keyCode === 32){ //space
-                    if(!keypress.start){   
-                        keypress.pause = false;
-                    }
-                    keypress.start = true;
-                }
-                if(event.keycode === 82){ //r
-                    reset();
-                }
-                if(event.keycode === 77){ //m
-                    keypress.mute = !keypress.mute;
-                }
-            });
-            document.addEventListener("keyup", function(event) {
-                if(event.keyCode === 87){ //w
-                    keypress.upM = false;
-                }
-                if(event.keyCode === 65){ //a
-                    keypress.leftM = false;
-                }
-                if(event.keyCode === 83){ //s
-                    keypress.downM = false;
-                }
-                if(event.keyCode === 68){ //d
-                    keypress.rightM = false;
-                }
-                if(event.keyCode === 38){ //up arrow
-                    keypress.upS = false;
-                }
-                if(event.keyCode === 37){ //left arrow
-                    keypress.leftS = false;
-                }
-                if(event.keyCode === 40){ //down arrow
-                    keypress.downS = false;
-                }
-                if(event.keyCode === 39){ //right arrow
-                    keypress.rightS = false;
-                }
-            });
             var shotArray = [];
             function Shot(x, y, d) {
                 this.xPos = x,
@@ -363,6 +264,107 @@
                     }
                 };
             }
+            function reset(){
+                score = 0;
+                shooter.health = 3;
+                shooter.xPos = canvas.width/2;
+                shooter.yPos = canvas.height/2;
+                shooter.invulnFrames = 0;
+                shooter.shotTimer = 0;
+                keypress.start = false;
+                keypress.pause = true;
+                spawnDelay = 150;
+                while(shotArray.length() > 0){
+                    shotArray.shift();
+                }
+                alert("test");
+                enemyArray.splice(0, enemyArray.length());
+                defeatedArray.splice(0, defeatedArray.length());
+            }
+            var keypress = {
+                upM: false,
+                leftM: false,
+                downM: false,
+                rightM: false,
+                upS: false,
+                leftS: false,
+                downS: false,
+                rightS: false,
+                pause: true,
+                mute: false,
+                start: false
+            };
+            var shootSound = document.getElementById("shoot");
+            var hitSound = document.getElementById("hit");
+            var damageSound = document.getElementById("damage");
+            var loseSound = document.getElementById("lose");
+            document.addEventListener("keydown", function(event) {
+                if(event.keyCode === 87){ //w
+                    keypress.upM = true;
+                }
+                if(event.keyCode === 65){ //a
+                    keypress.leftM = true;
+                }
+                if(event.keyCode === 83){ //s
+                    keypress.downM = true;
+                }
+                if(event.keyCode === 68){ //d
+                    keypress.rightM = true;
+                }
+                if(event.keyCode === 38){ //up arrow
+                    keypress.upS = true;
+                }
+                if(event.keyCode === 37){ //left arrow
+                    keypress.leftS = true;
+                }
+                if(event.keyCode === 40){ //down arrow
+                    keypress.downS = true;
+                }
+                if(event.keyCode === 39){ //right arrow
+                    keypress.rightS = true;
+                }
+                if(event.keyCode === 80){ //p
+                    keypress.pause = !keypress.pause;
+                }
+                if(event.keyCode === 32){ //space
+                    if(!keypress.start){   
+                        keypress.pause = false;
+                    }
+                    keypress.start = true;
+                }
+                if(event.keyCode === 82){ //r
+                    reset();
+                }
+                if(event.keyCode === 77){ //m
+                    keypress.mute = !keypress.mute;
+                }
+            });
+            document.addEventListener("keyup", function(event) {
+                if(event.keyCode === 87){ //w
+                    keypress.upM = false;
+                }
+                if(event.keyCode === 65){ //a
+                    keypress.leftM = false;
+                }
+                if(event.keyCode === 83){ //s
+                    keypress.downM = false;
+                }
+                if(event.keyCode === 68){ //d
+                    keypress.rightM = false;
+                }
+                if(event.keyCode === 38){ //up arrow
+                    keypress.upS = false;
+                }
+                if(event.keyCode === 37){ //left arrow
+                    keypress.leftS = false;
+                }
+                if(event.keyCode === 40){ //down arrow
+                    keypress.downS = false;
+                }
+                if(event.keyCode === 39){ //right arrow
+                    keypress.rightS = false;
+                }
+            });
             function gameLoop() {
                 if(!keypress.mute){
                     bgm.play();
@@ -440,13 +442,12 @@
                         }
                     }
                     for(var o = 0; o < defeatedArray.length; o++){
-                            defeatedArray[o].draw();
-                            defeatedArray[o].move();
+                        defeatedArray[o].move();
+                        defeatedArray[o].draw();
                     }
                     if(shooter.health.innerHTML <= 0){
                         keypress.pause = true;
                     }                
-                    
                 } else if(!keypress.start){
                     context.drawImage(startScreen, 0, (canvas.height - 0.5 * startScreen.height)/2, 
                     canvas.width, (canvas.width/startScreen.width) * startScreen.height);
@@ -461,7 +462,6 @@
                     }
                     bgm.pause();
                 }
-
             }
             gameLoop();
         </script>
