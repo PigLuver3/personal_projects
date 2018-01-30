@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+        <title>PIG IN SPACE</title>
+        <style>
+        canvas{
+            border:black 10px solid;
+            width:1000px;
+            height:500px;
+        }
+        img{
+            display:none;
+        }
+        p{
+            font-family: Courier, monospace;
+            font-size: 25px;
+        }
+        </style>
+    </head>
+    <body>
+        <img id="shooter-sprite" src="https://image.ibb.co/iaro76/Finished_Pig_Sprite.png">
+        <img id="shot-sprite" src="https://image.ibb.co/jP6MS6/Finished_Projectile_Sprite.png">
+        <img id="enemy-sprite" src="https://image.ibb.co/nBqgS6/Finished_Enemy_Sprite.png">
+        <img id="defeated-sprite" src="https://image.ibb.co/gqPfLR/Finished_Defeated_Sprite.png">
+        <img id="start-screen" src="https://image.ibb.co/cc0FSR/Finished_Title_Screen.png">
+        <img id="pause-screen" src="https://image.ibb.co/gp9pfR/Finished_Pause_Screen.png">
+        <img id="game-over" src="https://image.ibb.co/dRnxZm/Finished_Game_Over_Screen.png">
+        <img id="background" src="https://preview.ibb.co/jOqS6m/Finished_Space_Background.png">
+        <audio id="bgm">
+             <source src="shooter/bgm.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
+        <audio id="shoot">
+             <source src="shooter/shootsound.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
+        <audio id="hit">
+             <source src="shooter/hurtsound.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
+        <audio id="damage">
+             <source src="shooter/hitsound.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
+        <audio id="lose">
+             <source src="shooter/losesound.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
+        <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause. R to reset. M to mute/unmute.</h2>
+        <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
+        <p>health: <a id="HP">3</a></p>
+        <p>points: <a id="score">0</a></p>
+        <h4> Ver 1.2.4 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/shooter/piginspace.html">here</a>)</h4>
+        <script>
+            const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
+            const context = canvas.getContext("2d");                //access export console on c9 with alt+T
+            var bg = document.getElementById("background");         
+            var score = document.getElementById("score");
+            var hitDetect = 3;
+            var size = Math.max(canvas.width, canvas.height) + 1;
+            var spawnTimer = 50;
+            var spawnDelay = 150;
+            var spawnDelayMax = 150;
+            var enemyCount = 1;
+            var pauseScreen = document.getElementById("pause-screen");
+            var gameOver = document.getElementById("game-over");
+            var startScreen = document.getElementById("start-screen");
+            var bgm = document.getElementById("bgm");
+            var projectile = document.getElementById("shot-sprite");
+            var shotArray = [];
+            function Shot(x, y, d) {
+                this.xPos = x,
+                this.yPos = y,
+                this.direction = d,
+                this.sprite = projectile,
+                this.speed = shooter.speed,
+                this.iFrames = false,
+                this.visible = true,
+                this.draw = function(){
+                    context.drawImage(this.sprite, this.xPos, this.yPos, this.sprite.width, this.sprite.height);
+                },
+                this.move = function(){
+                    switch(this.direction){
+                        case 0: //up
+                            this.yPos -= this.speed;
+                            break;
+                        case 1: //left
+                            this.xPos -= this.speed;
+                            break;
+                        case 2: //down
+                            this.yPos += this.speed;
+                            break;
+                        case 3: //right
+                            this.xPos += this.speed;
+                            break;
+                    }
+                };
+            }
+            const shooter = {
+                xPos:canvas.width/2,
+                yPos:canvas.height/2,
+                speed: 4,
+                shotDelay: 30,
+                shotTimer: 0,
+                invulnFrames: 0,
+                health: document.getElementById("HP"),
+                sprite: document.getElementById("shooter-sprite"),   
+                goUp: function(){
+                    if(this.yPos > 0) 
+                        this.yPos -= this.speed;
+                },
+                goLeft: function(){
+                    if(this.xPos > 0) 
+                        this.xPos -= this.speed;
+                },
+                goDown: function(){
+                    if(this.yPos + this.sprite.height < canvas.height)
+                        this.yPos += this.speed;
+                },
+                goRight: function(){
+                    if(this.xPos + this.sprite.width < canvas.width)
+                        this.xPos += this.speed;
+                },
+                move: function(){
+                    if(keypress.upM === true){
+                        this.goUp();
+                    }
+                    if(keypress.leftM === true){
+                        this.goLeft();
+                    }
+                    if(keypress.downM === true){
+                        this.goDown();
+                    }
+                    if(keypress.rightM === true){
+                        this.goRight();
+                    }
+                },
+                shootUp: function() {
+                    shotArray.push(new Shot(this.xPos, this.yPos - projectile.height, 0));
+                    this.shotTimer += this.shotDelay;
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
+                },
+                shootLeft: function() {
+                    shotArray.push(new Shot(this.xPos - projectile.width, this.yPos, 1));
+                    this.shotTimer += this.shotDelay;
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
+                },
+                shootDown: function() {
+                    shotArray.push(new Shot(this.xPos, this.yPos + this.sprite.height, 2));
+                    this.shotTimer += this.shotDelay;
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
+                },
+                shootRight: function() {
+                    shotArray.push(new Shot(this.xPos + this.sprite.width, this.yPos, 3));
+                    this.shotTimer += this.shotDelay;
+                    if(!keypress.mute){
+                        shootSound.play();
+                    }
+                },
+                shoot: function(){
+                    if(this.shotTimer === 0){
+                        if(keypress.upS === true){
+                            this.shootUp();
+                        }
+                        else if(keypress.leftS === true){
+                            this.shootLeft();
+                        }
+                        else if(keypress.downS === true){
+                            this.shootDown();
+                        }
+                        else if(keypress.rightS === true){
+                            this.shootRight();
+                        }
+                    } else{
+                        this.shotTimer--;
+                    }
+                }
+            };
+            var enemyArray = [];
+            function Enemy(pos, d){
+                this.speed = shooter.speed / 2,
+                this.sprite = document.getElementById("enemy-sprite"),
+                this.xPos = this.speed + canvas.width + this.sprite.width,
+                this.yPos = this.speed + canvas.height + this.sprite.height,
+                this.direction = d,
+                this.hitDelay = 300,
+                this.spawn = function(){
+                    switch(this.direction){
+                        case 0: //up
+                            this.xPos = pos;
+                            this.yPos = - this.speed - this.sprite.height;
+                            break;
+                        case 1: //left
+                            this.xPos =  - this.speed - this.sprite.width;
+                            this.yPos = pos;
+                            break;
+                        case 2: //down
+                            this.xPos = pos;
+                            break;
+                        case 3: //right
+                            this.yPos = pos;
+                            break;
+                    }
+                },
+                this.draw = function(){
+                    context.drawImage(this.sprite, this.xPos, this.yPos, this.sprite.width, this.sprite.height);
+                },
+                this.move = function(){
+                    if(this.xPos < shooter.xPos){
+                        this.xPos += this.speed;
+                    }
+                    if(this.xPos > shooter.xPos){
+                        this.xPos -= this.speed;
+                    }
+                    if(this.yPos < shooter.yPos){
+                        this.yPos += this.speed;
+                    }
+                    if(this.yPos > shooter.yPos){
+                        this.yPos -= this.speed;
+                    }
+                },
+                this.collide = function(){
+                    if(this.xPos + hitDetect >=  shooter.xPos &&
+                    this.xPos - hitDetect <=  shooter.xPos &&
+                    this.yPos + hitDetect >=  shooter.yPos &&
+                    this.yPos - hitDetect <=  shooter.yPos &&
+                    shooter.invulnFrames === 0){
+                        shooter.health.innerHTML--;
+                        shooter.invulnFrames += this.hitDelay;
+                        shooter.iFrames = true;
+                        if(!keypress.mute){
+                            damageSound.play();
+                        }
+                    }
+                };
+            }
+            var defeatedArray = [];
+            function Defeated(x, y, d){
+                this.xPos = x,
+                this.yPos = y,
+                this.direction = d,
+                this.sprite = document.getElementById("defeated-sprite"),
+                this.speed = shooter.speed / 2,
+                this.draw = function(){
+                    context.drawImage(this.sprite, this.xPos, this.yPos, this.sprite.width, this.sprite.height);
+                },
+                this.move = function(){
+                    switch(this.direction){
+                        case 0: //up
+                            this.yPos -= this.speed;
+                            break;
+                        case 1: //left
+                            this.xPos -= this.speed;
+                            break;
+                        case 2: //down
+                            this.yPos += this.speed;
+                            break;
+                        case 3: //right
+                            this.xPos += this.speed;
+                            break;
+                    }
+                };
+            }
+            function reset(){
+                score.innerHTML = 0;
+                shooter.health.innerHTML = 3;
+                shooter.xPos = canvas.width/2;
+                shooter.yPos = canvas.height/2;
+                shooter.invulnFrames = 0;
+                shooter.shotTimer = 0;
+                keypress.start = false;
+                keypress.pause = true;
+                spawnDelay = spawnDelayMax;
+                spawnTimer = 50;
+                enemyCount = 1;
+                shotArray.splice(0, shotArray.length);
+                enemyArray.splice(0, enemyArray.length);
+                defeatedArray.splice(0, defeatedArray.length);
+            }
+            var keypress = {
+                upM: false,
+                leftM: false,
+                downM: false,
+                rightM: false,
+                upS: false,
+                leftS: false,
+                downS: false,
+                rightS: false,
+                pause: true,
+                mute: false,
+                start: false
+            };
+            var shootSound = document.getElementById("shoot");
+            var hitSound = document.getElementById("hit");
+            var damageSound = document.getElementById("damage");
+            var loseSound = document.getElementById("lose");
+            document.addEventListener("keydown", function(event) {
+                if(event.keyCode === 87){ //w
+                    keypress.upM = true;
+                }
+                if(event.keyCode === 65){ //a
+                    keypress.leftM = true;
+                }
+                if(event.keyCode === 83){ //s
+                    keypress.downM = true;
+                }
+                if(event.keyCode === 68){ //d
+                    keypress.rightM = true;
+                }
+                if(event.keyCode === 38){ //up arrow
+                    keypress.upS = true;
+                }
+                if(event.keyCode === 37){ //left arrow
+                    keypress.leftS = true;
+                }
+                if(event.keyCode === 40){ //down arrow
+                    keypress.downS = true;
+                }
+                if(event.keyCode === 39){ //right arrow
+                    keypress.rightS = true;
+                }
+                if(event.keyCode === 80){ //p
+                    keypress.pause = !keypress.pause;
+                }
+                if(event.keyCode === 32){ //space
+                    if(!keypress.start){   
+                        keypress.pause = false;
+                    }
+                    keypress.start = true;
+                }
+                if(event.keyCode === 82){ //r
+                    reset();
+                }
+                if(event.keyCode === 77){ //m
+                    keypress.mute = !keypress.mute;
+                }
+            });
+            document.addEventListener("keyup", function(event) {
+                if(event.keyCode === 87){ //w
+                    keypress.upM = false;
+                }
+                if(event.keyCode === 65){ //a
+                    keypress.leftM = false;
+                }
+                if(event.keyCode === 83){ //s
+                    keypress.downM = false;
+                }
+                if(event.keyCode === 68){ //d
+                    keypress.rightM = false;
+                }
+                if(event.keyCode === 38){ //up arrow
+                    keypress.upS = false;
+                }
+                if(event.keyCode === 37){ //left arrow
+                    keypress.leftS = false;
+                }
+                if(event.keyCode === 40){ //down arrow
+                    keypress.downS = false;
+                }
+                if(event.keyCode === 39){ //right arrow
+                    keypress.rightS = false;
+                }
+            });
+            function gameLoop() {
+                if(!keypress.mute){
+                    bgm.play();
+                } else{
+                    bgm.pause();
+                }
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                window.requestAnimationFrame(gameLoop);
+                context.drawImage(bg, 0, 0, canvas.width, canvas.height);
+                if(!keypress.pause){
+                    shooter.move();
+                    shooter.shoot();
+                    if(shooter.iFrames){
+                        shooter.visible = !shooter.visible;
+                    } else{
+                        shooter.visible = true;
+                    }
+                    if(shooter.visible){
+                        context.drawImage(shooter.sprite, shooter.xPos, shooter.yPos, shooter.sprite.width, shooter.sprite.height);
+                    }
+                    if(shooter.invulnFrames > 0){
+                        shooter.invulnFrames--;
+                    } else{
+                        shooter.iFrames = false;
+                    }
+                    if(spawnTimer === 0){
+                        for(var a = 0; a < enemyCount; a++){
+                            enemyArray.push(new Enemy(Math.floor(size * Math.random()), Math.floor(4 * Math.random())));
+                            enemyArray[enemyArray.length - 1].spawn();
+                        }
+                        spawnTimer += spawnDelay;
+                        if(spawnDelay > 25){
+                            spawnDelay--;
+                        } else{
+                            spawnDelay = spawnDelayMax;
+                            enemyCount++;
+                        }
+                    } else{
+                        spawnTimer--;
+                    }
+                    for(var i = 0; i < shotArray.length; i++){
+                        for(var j = 0; j < enemyArray.length; j++){
+                            if((shotArray[i].xPos + hitDetect >=  enemyArray[j].xPos &&
+                            shotArray[i].xPos - hitDetect <=  enemyArray[j].xPos) &&
+                            (shotArray[i].yPos + hitDetect >=  enemyArray[j].yPos &&
+                            shotArray[i].yPos - hitDetect <=  enemyArray[j].yPos)){
+                                shotArray.splice(i, 1);
+                                defeatedArray.push(new Defeated(enemyArray[j].xPos, enemyArray[j].yPos, enemyArray[j].direction));
+                                enemyArray.splice(j, 1);
+                                shotArray.splice(i, 1);
+                                if(!keypress.mute){
+                                    hitSound.play();
+                                }
+                                j = 0;
+                                score.innerHTML++;
+                            }
+                        }
+                    }
+                    for(var k = 0; k < shotArray.length; k++){
+                        if(shotArray[k].xPos - shotArray[k].sprite.width >= canvas.width + shotArray[k].speed || 
+                        shotArray[k].xPos + shotArray[k].sprite.width <= -shotArray[k].speed || 
+                        shotArray[k].yPos - shotArray[k].sprite.height >= canvas.height + shotArray[k].speed || 
+                        shotArray[k].yPos + shotArray[k].sprite.height <= -shotArray[k].speed){
+                            shotArray.splice(k, 1);
+                        }
+                    }
+                    for(var l = 0; l < enemyArray.length; l++){
+                        enemyArray[l].move();
+                        enemyArray[l].draw();
+                        enemyArray[l].collide();
+                    }
+                    for(var m = 0; m < shotArray.length; m++){
+                        shotArray[m].move();
+                        shotArray[m].draw();
+                    }
+                    for(var n = 0; n < defeatedArray.length; n++){
+                        if(defeatedArray[n].xPos - defeatedArray[n].sprite.width >= canvas.width + defeatedArray[n].speed || 
+                        defeatedArray[n].xPos + defeatedArray[n].sprite.width <= -defeatedArray[n].speed || 
+                        defeatedArray[n].yPos - defeatedArray[n].sprite.height >= canvas.height + defeatedArray[n].speed || 
+                        defeatedArray[n].yPos + defeatedArray[n].sprite.height <= -defeatedArray[n].speed){
+                            defeatedArray.splice(n, 1);
+                        }
+                    }
+                    for(var o = 0; o < defeatedArray.length; o++){
+                        defeatedArray[o].move();
+                        defeatedArray[o].draw();
+                    }
+                    if(shooter.health.innerHTML <= 0){
+                        keypress.pause = true;
+                    }                
+                } else if(!keypress.start){
+                    context.drawImage(startScreen, 0, (canvas.height - 0.5 * startScreen.height)/2, 
+                    canvas.width, (canvas.width/startScreen.width) * startScreen.height);
+                } else if(shooter.health.innerHTML > 0){
+                    context.drawImage(pauseScreen, 0, (canvas.height - 0.5 * pauseScreen.height)/2, 
+                    canvas.width, (canvas.width/pauseScreen.width) * pauseScreen.height);
+                } else{
+                    context.drawImage(gameOver, 0, (canvas.height - 0.5 * gameOver.height)/2, 
+                    canvas.width, (canvas.width/gameOver.width) * gameOver.height);
+                    if(!keypress.mute){
+                        loseSound.play();
+                    }
+                    bgm.pause();
+                }
+            }
+            gameLoop();
+        </script>
+    </body>
+</html>
