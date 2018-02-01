@@ -50,11 +50,11 @@
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
         <p>health: <a id="HP">3</a></p>
         <p>points: <a id="score">0</a></p>
-        <h4> Ver 1.2.4 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/shooter/piginspace.html">here</a>)</h4>
+        <h4> Ver 1.2.5 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/index.html">here</a>)</h4>
         <script>
             const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
             const context = canvas.getContext("2d");                //access export console on c9 with alt+T
-            var bg = document.getElementById("background");         
+            var bg = document.getElementById("background");         //game now also accessible from brightbulb.games
             var score = document.getElementById("score");
             var hitDetect = 3;
             var size = Math.max(canvas.width, canvas.height) + 1;

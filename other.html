@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Number Base Transmutator</title>
+</head>
+<body>
+<script>
+  var input = "0";
+  var output = "0";
+  var baseIn = 10;
+  var baseOut = 10;
+  var numerals = ["0", "1", "2", "3", "4", "5", "6", "7",
+                  "8", "9", "A", "B", "C", "D", "E", "F", 
+                  "G", "H", "I", "J", "K", "L", "M", "N", 
+                  "O", "P", "Q", "R", "S", "T", "U", "V", 
+                  "W", "X", "Y", "Z", "a", "b", "c", "d", 
+                  "e", "f", "g", "h", "i", "j", "k", "l", 
+                  "m", "n", "o", "p", "q", "r", "s", "t",
+                  "u", "v", "w", "x", "y", "z", "-", "_"];
+  function fromBase10(input, base){
+    var values = [0]; //list of value in each place
+    var count = 0; //variable that ensures base isnt exceeded
+    var place = 1; //tracks place when carrying
+    for(var i = 0; i < input; i++){ //loops through inputted amount
+      values[values.length - 1] = count++;
+      if(values[values.length - 1] >= base){ //checks if first digit has exceeded base
+        count = 0; //count is reset
+        place++; //moves to next place
+        while(place > 1){ //handle new digits
+          if(values[values.length - place] >= base - 1){ //checks next digit if would exceed 
+            values[values.length - place] = 0; //resets if yes
+            place++; // moves to next place
+            if(values.length > place){ //checks if at final digit
+              values[values.length - place]++; //increments next digit if no
+            } else{
+              values.push(0, 0, 1); //adds new digit if yes
+            }
+          } else{
+            values[values.length - place]++; //increments next digit if available
+            place = 1; //resets place
+          }
+        }
+      }
+    }
+    var digits = []; //creates array for characters
+    for(var j = 0; j < values.length; j++){ //goes through values
+      digits.unshift(numerals[values[j]]); //assigns characters to digits which match values
+    }
+    var final = ""; //dummy variable
+    for(var k = 0; k < digits.length; k++){ //goes through digits
+      final += digits[k]; //concatenates the characters
+    }
+    return final; //returns complete string;
+  }
+</script>
+</body>
+</html>
