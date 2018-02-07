@@ -6,11 +6,18 @@
   <title>Number Base Transmutator</title>
 </head>
 <body>
+  <form>
+    Input Base:<input type="text" name="inBase"/><br>
+    Input Number:<input type="text" name="inNum"/><br>
+    Output Base:<input type="text" name="outBase"/><br>
+    Output Number: <a id="outNum"></a><br>
+    <input type="submit" value="Activate"/><br>
+  </form>
 <script>
-  var input = "0";
-  var output = "0";
-  var baseIn = 10;
-  var baseOut = 10;
+  var iB = document.getElementById("inBase");
+  var iN = document.getElementById("inNum");
+  var oB = document.getElementById("outBase");
+  var oN = document.getElementById("outNum");
   var numerals = ["0", "1", "2", "3", "4", "5", "6", "7",
                   "8", "9", "A", "B", "C", "D", "E", "F", 
                   "G", "H", "I", "J", "K", "L", "M", "N", 
@@ -54,6 +61,16 @@
     }
     return final; //returns complete string;
   }
+  function toBase10(input, base){
+    var total = 0;
+    var digits = input.split("");
+    var valid = true;
+    for(var i = 0; i < digits.length && valid; i++){
+      total += numerals.indexOf(digits[i]) * Math.pow(base, i);
+    }
+    return total;
+  }
+  oN.innerHTML = fromBase10(toBase10(iN, iB), oB);
 </script>
 </body>
 </html>
