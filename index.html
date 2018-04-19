@@ -13,7 +13,7 @@
         }
         p{
             font-family: Courier, monospace;
-            font-size: 25px;
+            font-size: 24px;
         }
         </style>
     </head>
@@ -46,22 +46,30 @@
              <source src="sound/losesound.wav" type="audio/wav">
              Your browser does not support the audio elements.
         </audio>
+        <audio id="pause">
+             <source src="sound/pause.wav" type="audio/wav">
+             Your browser does not support the audio elements.
+        </audio>
         <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause. R to reset. M to mute/unmute.</h2>
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
-        <p>health: <a id="HP">3</a></p>
-        <p>points: <a id="score">0</a></p>
-        <h4> Ver 1.2.5 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/index.html">here</a>)</h4>
+        <p>health: <a id="HP">3</a><br>points: <a id="score">0</a></p>
+        <p style="font-family:Serif;">HIGH SCORE: <a id="hi-score">0</a></p>
+        <h4> Ver 1.2.9 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/index.html">here</a>), made by Bill Brightbulb
+        <br> Pig in Space is also accessible from <a href="http://www.brightbulb.games">brightbulb.games</a>!</h4>
         <script>
-            const canvas = document.getElementById("gamespace");    //https://tinyurl.com/yc9va4qb is link to play
+            const canvas = document.getElementById("gamespace");    
             const context = canvas.getContext("2d");                //access export console on c9 with alt+T
-            var bg = document.getElementById("background");         //game now also accessible from brightbulb.games
+            var bg = document.getElementById("background");         //game now accessible from brightbulb.games
             var score = document.getElementById("score");
+            var hiScore = document.getElementById("hi-score");
             var hitDetect = 3;
             var size = Math.max(canvas.width, canvas.height) + 1;
             var spawnTimer = 50;
             var spawnDelay = 150;
             var spawnDelayMax = 150;
             var enemyCount = 1;
+            var pauseSFX = true;
+            var gameOverSFX = true;
             var pauseScreen = document.getElementById("pause-screen");
             var gameOver = document.getElementById("game-over");
             var startScreen = document.getElementById("start-screen");
@@ -300,6 +308,7 @@
             var hitSound = document.getElementById("hit");
             var damageSound = document.getElementById("damage");
             var loseSound = document.getElementById("lose");
+            var pauseSound = document.getElementById("pause");
             document.addEventListener("keydown", function(event) {
                 if(event.keyCode === 87){ //w
                     keypress.upM = true;
@@ -377,6 +386,16 @@
                 window.requestAnimationFrame(gameLoop);
                 context.drawImage(bg, 0, 0, canvas.width, canvas.height);
                 if(!keypress.pause){
+                    gameOverSFX = true;
+                    if(!pauseSFX){
+                        pauseSound.play();
+                        pauseSFX = true;
+                    }
+                    gameOverSFX = true;
+                    if(!pauseSFX){
+                        pauseSound.play();
+                        pauseSFX = true;
+                    }
                     shooter.move();
                     shooter.shoot();
                     if(shooter.iFrames){
@@ -413,8 +432,8 @@
                             shotArray[i].xPos - hitDetect <=  enemyArray[j].xPos) &&
                             (shotArray[i].yPos + hitDetect >=  enemyArray[j].yPos &&
                             shotArray[i].yPos - hitDetect <=  enemyArray[j].yPos)){
+                                defeatedArray.push(new Defeated(enemyArray[j].xPos, enemyArray[j].yPos, shotArray[i].direction));
                                 shotArray.splice(i, 1);
-                                defeatedArray.push(new Defeated(enemyArray[j].xPos, enemyArray[j].yPos, enemyArray[j].direction));
                                 enemyArray.splice(j, 1);
                                 shotArray.splice(i, 1);
                                 if(!keypress.mute){
@@ -422,6 +441,9 @@
                                 }
                                 j = 0;
                                 score.innerHTML++;
+                                if(score.innerHTML > hiScore.innerHTML){
+                                    hiScore.innerHTML++;
+                                }
                             }
                         }
                     }
@@ -463,11 +485,16 @@
                 } else if(shooter.health.innerHTML > 0){
                     context.drawImage(pauseScreen, 0, (canvas.height - 0.5 * pauseScreen.height)/2, 
                     canvas.width, (canvas.width/pauseScreen.width) * pauseScreen.height);
+                    if(pauseSFX){
+                        pauseSound.play();
+                        pauseSFX = false;
+                    }
                 } else{
                     context.drawImage(gameOver, 0, (canvas.height - 0.5 * gameOver.height)/2, 
                     canvas.width, (canvas.width/gameOver.width) * gameOver.height);
-                    if(!keypress.mute){
+                    if(!keypress.mute && gameOverSFX){
                         loseSound.play();
+                        gameOverSFX = false;
                     }
                     bgm.pause();
                 }
