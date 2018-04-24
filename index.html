@@ -50,18 +50,20 @@
              <source src="sound/pause.wav" type="audio/wav">
              Your browser does not support the audio elements.
         </audio>
-        <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause. R to reset. M to mute/unmute.</h2>
+        <h2>Space to start. WASD to move. Arrow keys to fire. P to pause/unpause. R to reset. M to mute/unmute. (If the game is too large, use Ctrl + -.)</h2>
         <canvas id="gamespace">Your browser does not support HTML5 canvas.</canvas>
         <p>health: <a id="HP">3</a><br>points: <a id="score">0</a></p>
         <p style="font-family:Serif;">HIGH SCORE: <a id="hi-score">0</a></p>
-        <h4> Ver 1.2.9 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/index.html">here</a>), made by Bill Brightbulb
+        <h4> Version 1.3.1 (source code <a href="https://github.com/PigLuver3/top-down_shooter/blob/master/index.html">here</a>), made by Bill Brightbulb.
         <br> Pig in Space is also accessible from <a href="http://brightbulb.games">brightbulb.games</a>!</h4>
         <script>
             const canvas = document.getElementById("gamespace");    
             const context = canvas.getContext("2d");                //access export console on c9 with alt+T
             var bg = document.getElementById("background");         //game now accessible from brightbulb.games
-            var score = document.getElementById("score");
-            var hiScore = document.getElementById("hi-score");
+            var scoreV = 0;
+            var scoreD = document.getElementById("score");
+            var hiScoreV = 0;
+            var hiScoreD = document.getElementById("hi-score");
             var hitDetect = 3;
             var size = Math.max(canvas.width, canvas.height) + 1;
             var spawnTimer = 50;
@@ -276,7 +278,7 @@
                 };
             }
             function reset(){
-                score.innerHTML = 0;
+                scoreV = 0;
                 shooter.health.innerHTML = 3;
                 shooter.xPos = canvas.width/2;
                 shooter.yPos = canvas.height/2;
@@ -301,7 +303,7 @@
                 downS: false,
                 rightS: false,
                 pause: true,
-                mute: true, //mute is here (mutecheck)
+                mute: false, //mute is here (mutecheck)
                 start: false
             };
             var shootSound = document.getElementById("shoot");
@@ -387,12 +389,7 @@
                 context.drawImage(bg, 0, 0, canvas.width, canvas.height);
                 if(!keypress.pause){
                     gameOverSFX = true;
-                    if(!pauseSFX){
-                        pauseSound.play();
-                        pauseSFX = true;
-                    }
-                    gameOverSFX = true;
-                    if(!pauseSFX){
+                    if(!pauseSFX && !keypress.mute){
                         pauseSound.play();
                         pauseSFX = true;
                     }
@@ -440,9 +437,11 @@
                                     hitSound.play();
                                 }
                                 j = 0;
-                                score.innerHTML++;
-                                if(hiScore.innerHTML < score.innerHTML){
-                                    hiScore.innerHTML = score.innerHTML;
+                                scoreV++;
+                                scoreD.innerHTML = scoreV;
+                                if(hiScoreV < scoreV){
+                                    hiScoreV = scoreV;
+                                    hiScoreD.innerHTML = hiScoreV;
                                 }
                             }
                         }
@@ -485,7 +484,7 @@
                 } else if(shooter.health.innerHTML > 0){
                     context.drawImage(pauseScreen, 0, (canvas.height - 0.5 * pauseScreen.height)/2, 
                     canvas.width, (canvas.width/pauseScreen.width) * pauseScreen.height);
-                    if(pauseSFX){
+                    if(pauseSFX && !keypress.mute){
                         pauseSound.play();
                         pauseSFX = false;
                     }
